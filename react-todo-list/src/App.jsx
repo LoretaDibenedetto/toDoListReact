@@ -9,12 +9,22 @@ function App() {
 
 const handleNewTodoChange = (e) => {
   setNewTodo(e.target.value)
+
 }
 
 const handleAddTodo = (e) => {
   e.preventDefault()
+  if (newTodo === '') return 
+
   setTodos([...todos, newTodo])
   setNewTodo('')
+  console.log(todos)
+}
+
+const HandleTodoDelete = (index) => {
+  const newTodos = [...todos]
+  newTodos.splice(index, 1)
+  setTodos(newTodos)
 }
 
   return (
@@ -27,13 +37,18 @@ const handleAddTodo = (e) => {
             <button type="submit" onClick={handleAddTodo}>Add Todo</button>
         </form>
             <ul className='todos'>
-                <li className='todo'>
-                  <span>
-                    Todo Name
-                  </span>
-                  <button>Delete</button>
+              {
+              todos.map((todo, index) => (
+                <li className='todo' key={index}>
+                 <span> {todo}</span>
+                  <button onClick={() => HandleTodoDelete(index)}>Delete</button>
                 </li>
-
+              ))}
+              
+              
+              
+           
+            
             </ul>
       </div>
      
