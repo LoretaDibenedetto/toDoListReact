@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import todoMessages from "./model/dbTodo.mjs";
-import dbTodo from './model/dbTodo.mjs';
+import cors from 'cors';
 
 //DATABASE CONNECTION
 const connectionDbUrl = "mongodb+srv://admin:RygpIVic9aK55FFs@cluster2.1vis1sg.mongodb.net/MyDb?retryWrites=true&w=majority";
@@ -24,6 +24,8 @@ const db = mongoose.connection;
 const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
+
+app.use(cors());
 
 
 
