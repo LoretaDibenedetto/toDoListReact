@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import axios from 'axios';
 import './App.css'
 
 function App() {
@@ -12,20 +12,48 @@ const handleNewTodoChange = (e) => {
 
 }
 
-const handleAddTodo = (e) => {
+const handleAddTodo = async (e) => {
   e.preventDefault()
   if (newTodo === '') return 
 
-  setTodos([...todos, newTodo])
+  try {
+    // Send a POST request to the Express backend to add the new todo
+    const response = await axios.post('http://localhost:3000/api/v1/messages', {
+      message: newTodo,
+    });
+
+    setTodos([...todos, response.data]); // Assuming response.data contains the new todo
+    setNewTodo('');
+  } catch (error) {
+    console.error('Error adding todo:', error);
+  }
+
+
+  /*setTodos([...todos, newTodo])
   setNewTodo('')
-  console.log(todos)
+  console.log(todos)*/
 }
 
-const HandleTodoDelete = (index) => {
+/*const HandleTodoDelete = (index) => {
   const newTodos = [...todos]
   newTodos.splice(index, 1)
   setTodos(newTodos)
-}
+}*/
+
+const HandleTodoDelete = async (index) => {
+  try {
+    const todoIdToDelete = todos[index]._id; // Assuming the todos have an _id field
+
+    // Send a DELETE request to the Express backend to delete the todo
+    await axios.delete(`http://localhost:3000/api/v1/messages/${todoIdToDelete}`);
+
+    const newTodos = [...todos];
+    newTodos.splice(index, 1);
+    setTodos(newTodos);
+  } catch (error) {
+    console.error('Error deleting todo:', error);
+  }
+};
 
   return (
     <>
@@ -40,7 +68,7 @@ const HandleTodoDelete = (index) => {
               {
               todos.map((todo, index) => (
                 <li className='todo' key={index}>
-                 <span> {todo}</span>
+                 <span> {todo.message}</span>
                   <button onClick={() => HandleTodoDelete(index)}>Delete</button>
                 </li>
               ))}

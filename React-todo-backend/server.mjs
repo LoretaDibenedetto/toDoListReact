@@ -60,6 +60,23 @@ app.post("/api/v1/messages",async (req,res) =>{
     }
 })
 
+// Delete endpoint
+app.delete('/api/v1/messages/:id', async (req, res) => {
+    const messageId = req.params.id;
+  
+    try {
+      const deletedMessage = await todoMessages.findByIdAndDelete(messageId);
+  
+      if (!deletedMessage) {
+        res.status(404).send({ error: 'Message not found' });
+      } else {
+        res.status(200).send({ message: 'Message deleted successfully' });
+      }
+    } catch (error) {
+      res.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
