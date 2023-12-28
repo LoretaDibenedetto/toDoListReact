@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import todoMessages from "./model/dbTodo.mjs";
+import dbTodo from './model/dbTodo.mjs';
 
 //DATABASE CONNECTION
 const connectionDbUrl = "mongodb+srv://admin:RygpIVic9aK55FFs@cluster2.1vis1sg.mongodb.net/MyDb?retryWrites=true&w=majority";
@@ -22,14 +23,40 @@ mongoose.connect(connectionDbUrl,
 const db = mongoose.connection;
 const app = express();
 const port = process.env.PORT || 3000;
+app.use(express.json());
 
 
 
-//endport
+//endpoint
 app.get('/api', (req, res) => {
     res.status(200).send('benvenuto sul server');
 });
 
+app.get('/api/v1/messages/sync',async(req,res)=>{
+ 
+    const data = await todoMessages.find();
+        if (data.error) {
+            res.status(500).send(data.error);
+          } else {
+            res.status(201).send(data);
+           
+          }
+    
+  
+})
+
+app.post("/api/v1/messages",async (req,res) =>{
+    const dbTodo = req.body;
+   
+    const data = await todoMessages.create(dbTodo);
+
+    if (data.error) {
+      res.status(500).send(data.error);
+    } else {
+      res.status(201).send(data);
+     
+    }
+})
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
