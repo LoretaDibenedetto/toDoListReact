@@ -11,7 +11,7 @@ function App() {
   useEffect(() => {
     const fetchTodos = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/messages/sync');
+        const response = await axios.get('https://fast-shelf-20295-7538bf78ad5f.herokuapp.com/api/v1/messages/sync');
         setTodos(response.data);
       } catch (error) {
         console.error('Errore nel recupero dei todos:', error);
@@ -28,7 +28,7 @@ function App() {
   const handleSaveEdit = async (index, updatedText) => {
     try {
       const todoIdToUpdate = todos[index]._id;
-      const response = await axios.put(`http://localhost:3000/api/v1/messages/${todoIdToUpdate}`, { message: updatedText });
+      const response = await axios.put(`https://fast-shelf-20295-7538bf78ad5f.herokuapp.com/api/v1/messages/${todoIdToUpdate}`, { message: updatedText });
 
       const updatedTodos = [...todos];
       updatedTodos[index] = response.data;
@@ -48,7 +48,7 @@ function App() {
     if (newTodo === '') return;
 
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/messages', {
+      const response = await axios.post('https://fast-shelf-20295-7538bf78ad5f.herokuapp.com/api/v1/messages', {
         message: newTodo,
       });
 
@@ -62,7 +62,7 @@ function App() {
   const handleTodoDelete = async (index) => {
     try {
       const todoIdToDelete = todos[index]._id;
-      await axios.delete(`http://localhost:3000/api/v1/messages/${todoIdToDelete}`);
+      await axios.delete(`https://fast-shelf-20295-7538bf78ad5f.herokuapp.com/api/v1/messages/${todoIdToDelete}`);
 
       const newTodos = [...todos];
       newTodos.splice(index, 1);
@@ -75,7 +75,7 @@ function App() {
   const handleEditTodoChange = (e, index) => {
     const updatedText = e.target.value;
   
-   
+    // Assuming you have a function to update the state for the editing todo
     const updatedTodos = [...todos];
     updatedTodos[index].message = updatedText;
   

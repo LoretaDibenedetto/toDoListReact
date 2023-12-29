@@ -14,8 +14,10 @@ const db = mongoose.connection;
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+
+const bodyParser = require('body-parser')    
+//Bodyparser Middleware
+app.use(bodyParser.json())
 
 const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -79,6 +81,8 @@ app.delete('/api/v1/messages/:id', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+
+
+app.listen(process.env.PORT || 3000, function(){
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 });

@@ -1,2 +1,2 @@
-web: node server.mjs
+web: node build/server.mjs
 
