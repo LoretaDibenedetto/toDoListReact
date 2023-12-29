@@ -1,28 +1,34 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import todoMessages from "./model/dbTodo.mjs";
 import cors from 'cors';
+import bodyParser from 'body-parser';
+import { configViewEngine } from './config';  // Assumi che configViewEngine sia una funzione nel tuo modulo di configurazione
 
 // DATABASE CONNECTION
 const connectionDbUrl = "mongodb+srv://admin:RygpIVic9aK55FFs@cluster2.1vis1sg.mongodb.net/MyDb?retryWrites=true&w=majority&ssl=true";
-mongoose.connect(connectionDbUrl, { 
-  useNewUrlParser: true, 
+mongoose.connect(connectionDbUrl, {
+  useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
 const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => {
+  console.log('Connected to MongoDB');
+});
+
 const app = express();
-const port = process.env.PORT || 3000;
 
+//const port = process.env.PORT || 3000;
 
-const bodyParser = require('body-parser')    
-//Bodyparser Middleware
-app.use(bodyParser.json())
+// Bodyparser Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const corsOptions = {
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-};
-app.use(cors(corsOptions));
+// CORS Middleware
+app.use(cors());
+
+configViewEngine(app);
 
 // ENDPOINTS
 app.get('/', (req, res) => {
@@ -81,8 +87,8 @@ app.delete('/api/v1/messages/:id', async (req, res) => {
   }
 });
 
-
-
-app.listen(process.env.PORT || 3000, function(){
-  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+const { PORT=3000, LOCAL_ADDRESS='0.0.0.0' } = process.env
+server.listen(PORT, LOCAL_ADDRESS, () => {
+  const address = server.address();
+  console.log('server listening at', address);
 });
