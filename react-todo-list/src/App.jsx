@@ -1,87 +1,123 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'
+import './App.css';
 
 function App() {
-  const [todos, setTodos] = useState([])
-
-  const [newTodo, setNewTodo] = useState('')
-
-const handleNewTodoChange = (e) => {
-  setNewTodo(e.target.value)
-
-}
-
-const handleAddTodo = async (e) => {
-  e.preventDefault()
-  if (newTodo === '') return 
-
-  try {
-    // Send a POST request to the Express backend to add the new todo
-    const response = await axios.post('http://localhost:3000/api/v1/messages', {
-      message: newTodo,
-    });
-
-    setTodos([...todos, response.data]); // Assuming response.data contains the new todo
-    setNewTodo('');
-  } catch (error) {
-    console.error('Error adding todo:', error);
-  }
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState('');
+  const [editingTodo, setEditingTodo] = useState(null);
 
 
-  /*setTodos([...todos, newTodo])
-  setNewTodo('')
-  console.log(todos)*/
-}
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/v1/messages/sync');
+        setTodos(response.data);
+      } catch (error) {
+        console.error('Errore nel recupero dei todos:', error);
+      }
+    };
 
-/*const HandleTodoDelete = (index) => {
-  const newTodos = [...todos]
-  newTodos.splice(index, 1)
-  setTodos(newTodos)
-}*/
+    fetchTodos();
+  }, []);
 
-const HandleTodoDelete = async (index) => {
-  try {
-    const todoIdToDelete = todos[index]._id; // Assuming the todos have an _id field
+  const handleEditTodo = (index) => {
+    setEditingTodo(index);
+  };
 
-    // Send a DELETE request to the Express backend to delete the todo
-    await axios.delete(`http://localhost:3000/api/v1/messages/${todoIdToDelete}`);
+  const handleSaveEdit = async (index, updatedText) => {
+    try {
+      const todoIdToUpdate = todos[index]._id;
+      const response = await axios.put(`http://localhost:3000/api/v1/messages/${todoIdToUpdate}`, { message: updatedText });
 
-    const newTodos = [...todos];
-    newTodos.splice(index, 1);
-    setTodos(newTodos);
-  } catch (error) {
-    console.error('Error deleting todo:', error);
-  }
-};
+      const updatedTodos = [...todos];
+      updatedTodos[index] = response.data;
+      setTodos(updatedTodos);
+      setEditingTodo(null);
+    } catch (error) {
+      console.error('Error editing todo:', error);
+    }
+  };
+
+  const handleNewTodoChange = (e) => {
+    setNewTodo(e.target.value);
+  };
+
+  const handleAddTodo = async (e) => {
+    e.preventDefault();
+    if (newTodo === '') return;
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/v1/messages', {
+        message: newTodo,
+      });
+
+      setTodos([...todos, response.data]);
+      setNewTodo('');
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
+  };
+
+  const handleTodoDelete = async (index) => {
+    try {
+      const todoIdToDelete = todos[index]._id;
+      await axios.delete(`http://localhost:3000/api/v1/messages/${todoIdToDelete}`);
+
+      const newTodos = [...todos];
+      newTodos.splice(index, 1);
+      setTodos(newTodos);
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+    }
+  };
+
+  const handleEditTodoChange = (e, index) => {
+    const updatedText = e.target.value;
+  
+   
+    const updatedTodos = [...todos];
+    updatedTodos[index].message = updatedText;
+  
+    setTodos(updatedTodos);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTodo(null);
+  };
 
   return (
     <>
-    
       <h1>Todo List</h1>
       <div className="card">
-        <form >
-            <input type="text" value={newTodo} onChange={handleNewTodoChange}/> 
-            <button type="submit" onClick={handleAddTodo}>Add Todo</button>
+        <form>
+          <input type="text" value={newTodo} onChange={handleNewTodoChange} />
+          <button type="submit" onClick={handleAddTodo}>
+            Add Todo
+          </button>
         </form>
-            <ul className='todos'>
-              {
-              todos.map((todo, index) => (
-                <li className='todo' key={index}>
-                 <span> {todo.message}</span>
-                  <button onClick={() => HandleTodoDelete(index)}>Delete</button>
-                </li>
-              ))}
-              
-              
-              
-           
-            
-            </ul>
+        <ul className="todos">
+          {todos.map((todo, index) => (
+            <li className="todo" key={index}>
+              {index === editingTodo ? (
+                <>
+                  <input type="text" value={todo.message} onChange={(e) => handleEditTodoChange(e, index)} />
+                  <button onClick={() => handleSaveEdit(index, todo.message)}>Save</button>
+                  <button onClick={handleCancelEdit}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <span>{todo.message}</span>
+                  <button onClick={() => handleTodoDelete(index)}>Delete</button>
+                  <button onClick={() => handleEditTodo(index)}>Edit</button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
-     
     </>
-  )
+  );
 }
 
-export default App
+export default App;

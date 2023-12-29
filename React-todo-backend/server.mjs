@@ -80,3 +80,22 @@ app.delete('/api/v1/messages/:id', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+
+// Update endpoint
+app.put('/api/v1/messages/:id', async (req, res) => {
+  const messageId = req.params.id;
+  const updatedMessage = req.body;
+
+  try {
+    const result = await todoMessages.findByIdAndUpdate(messageId, updatedMessage, { new: true });
+
+    if (!result) {
+      res.status(404).send({ error: 'Message not found' });
+    } else {
+      res.status(200).send(result);
+    }
+  } catch (error) {
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
